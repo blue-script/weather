@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/blue-script/weather/geo"
+	"github.com/blue-script/weather/weather"
 )
 
 func main() {
-	fmt.Println("New project")
+	fmt.Println("Weather")
 	city := flag.String("city", "", "User city")
-	format := flag.Int("format", 1, "Weather output format")
+	format := flag.Int("format", 4, "Weather output format")
 	flag.Parse()
-	fmt.Println(*city, *format)
 
 	geoData, err := geo.GetMyLocation(*city)
 	if err != nil {
@@ -20,13 +20,6 @@ func main() {
 	}
 	fmt.Println(*geoData)
 
-	// r := strings.NewReader("Hello, I'm a data stream")
-	// block := make([]byte, 4)
-	// for {
-	// 	_, err := r.Read(block)
-	// 	if err == io.EOF {
-	// 		break
-	// 	}
-	// 	fmt.Printf("%q\n", block)
-	// }
+	weatherData := weather.GetWeather(*geoData, *format)
+	fmt.Println(weatherData)
 }
