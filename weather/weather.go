@@ -1,19 +1,23 @@
 package weather
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/blue-script/weather/geo"
 )
 
-func GetWeather(geo geo.GeoData, format int) string {
+var ErrInvalidFormat = errors.New("INCORRECT_FORMAT")
+
+func GetWeather(geo geo.GeoData, format int) (string, error) {
 	baseUrl, err := url.Parse("https://wttr.in/" + geo.City)
 	if err != nil {
 		fmt.Println(err.Error())
-		return ""
+		return "", errors.New("ERROR_URL")
 	}
 
 	params := url.Values{}
@@ -23,15 +27,18 @@ func GetWeather(geo geo.GeoData, format int) string {
 	resp, err := http.Get(baseUrl.String())
 	if err != nil {
 		fmt.Println(err.Error())
-		return ""
+		return "", errors.New("ERROR_HTTP")
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err.Error())
-		return ""
+		return "", errors.New("ERROR_READ_BODY")
+	}
+	if string(body) == fmt.Sprint(format) {
+		return "", ErrInvalidFormat
 	}
 
-	return string(body)
+	return string(body), nil
 }
